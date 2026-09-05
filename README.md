@@ -5,7 +5,7 @@ Windows の「メインディスプレイ」とは別に、鑑賞する画面を
 
 ## 起動
 
-`artifacts/DisplayVeil/DisplayVeil.exe` を開きます。インストール・管理者権限は不要です。
+配布ZIPを「すべて展開」し、`DisplayVeil/DisplayVeil.exe` を開きます。ソースからビルドした場合は `artifacts/DisplayVeil/DisplayVeil.exe` です。インストール・管理者権限は不要です。
 Windows 10 / 11、.NET Framework 4.8 以降が必要です。配布フォルダーの `.exe.config` を exe と一緒に置いてください。
 
 1. 「画面番号を表示」で実際の画面と配置図を照合します。番号はアプリ内の番号です。
@@ -60,6 +60,10 @@ Windows PowerShell または PowerShell で、プロジェクト直下から実�
 ```
 
 配布用ZIPも作る場合は `.\build.ps1 -Test -Package` を実行します。
+ZIPとSHA-256は `artifacts/release/` に生成します。
+
+GitHub Actionsではpush・PR時にビルドとテストを行い、`v1.0.0`形式のタグをpushすると、exeを含むZIPをGitHub Releasesへ公開します。
+初回設定・バージョン更新・公開手順は [配布の手順](docs/RELEASING.md) を参照してください。
 
 NuGet や追加 SDK は使用せず、Windows の .NET Framework コンパイラーでビルドします。
 ソースは `src/`、テストは `tests/`、設計は `docs/DESIGN.md`、実機チェック項目は `docs/TESTING.md` です。

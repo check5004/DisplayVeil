@@ -11,13 +11,19 @@ namespace DisplayVeil.Tests
 {
     internal static class TestRunner
     {
-        private static int passed, failed;
+        private static int passed, failed, skipped;
+        private static bool headless;
         [STAThread]
-        private static int Main()
+        private static int Main(string[] args)
         {
-            Native.EnableDpiAwareness();
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Any(arg => arg != "--headless")) { Console.Error.WriteLine("Usage: DisplayVeil.Tests.exe [--headless]"); return 2; }
+            headless = args.Contains("--headless");
+            if (!headless)
+            {
+                Native.EnableDpiAwareness();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+            }
             Run("A viewing display can be non-primary", delegate
             {
                 var displays = FourDisplays();
@@ -173,7 +179,7 @@ namespace DisplayVeil.Tests
                 string warning; var settings = new Settings { ViewingId = "movie" };
                 Assert(!new SettingsStore(blocked).Save(settings, out warning) && warning.Length > 0 && settings.ViewingId == "movie");
             });
-            Run("Real display enumeration gives unique identities and physical bounds", delegate
+            RunDesktop("Real display enumeration gives unique identities and physical bounds", delegate
             {
                 var displays = Native.GetDisplays();
                 Assert(displays.Count > 0 && displays.Select(d => d.Id).Distinct().Count() == displays.Count);
@@ -183,7 +189,7 @@ namespace DisplayVeil.Tests
                     Console.WriteLine("  Display " + display.Number + ": " + display.Bounds + ", DPI=" + display.Dpi + ", primary=" + display.IsPrimary);
                 }
             });
-            Run("Native full-monitor curtains preserve focus and exact bounds", delegate
+            RunDesktop("Native full-monitor curtains preserve focus and exact bounds", delegate
             {
                 foreach (var display in Native.GetDisplays())
                 {
@@ -201,7 +207,7 @@ namespace DisplayVeil.Tests
                     Application.DoEvents();
                 }
             });
-            Run("Reveal and cover update native visibility without activation", delegate
+            RunDesktop("Reveal and cover update native visibility without activation", delegate
             {
                 var display = Native.GetDisplays()[0];
                 IntPtr foreground = Native.GetForegroundWindow();
@@ -216,7 +222,7 @@ namespace DisplayVeil.Tests
                     Assert(veil.Curtain.Visible && !veil.Bar.Visible && foreground == Native.GetForegroundWindow());
                 }
             });
-            Run("Global hotkey conflicts, duplicates, disable and cleanup", delegate
+            RunDesktop("Global hotkey conflicts, duplicates, disable and cleanup", delegate
             {
                 using (var first = new Form())
                 using (var second = new Form())
@@ -235,7 +241,7 @@ namespace DisplayVeil.Tests
                     Native.UnregisterHotKey(first.Handle, 999);
                 }
             });
-            Run("Double click reveals only after the final mouse release", delegate
+            RunDesktop("Double click reveals only after the final mouse release", delegate
             {
                 var display = Native.GetDisplays()[0]; bool revealed = false;
                 using (var curtain = new CurtainForm(display))
@@ -251,7 +257,7 @@ namespace DisplayVeil.Tests
                     Application.DoEvents(); Assert(revealed);
                 }
             });
-            Run("Right click explicitly renews escape controls", delegate
+            RunDesktop("Right click explicitly renews escape controls", delegate
             {
                 var display = Native.GetDisplays()[0]; int hints = 0;
                 using (var curtain = new CurtainForm(display))
@@ -268,7 +274,7 @@ namespace DisplayVeil.Tests
                     }
                 }
             });
-            Run("Physical overlay controls fit at 100, 125, 150 and 200 percent", delegate
+            RunDesktop("Physical overlay controls fit at 100, 125, 150 and 200 percent", delegate
             {
                 foreach (int dpi in new[] { 96, 120, 144, 192 })
                 {
@@ -293,10 +299,10 @@ namespace DisplayVeil.Tests
                     }
                 }
             });
-            Run("Controller covers all real non-viewing screens and stops on disconnect", delegate
+            RunDesktop("Controller covers all real non-viewing screens and stops on disconnect", delegate
             {
                 var snapshot = Native.GetDisplays();
-                if (snapshot.Count < 2) { Console.WriteLine("  SKIP: requires multiple physical displays"); return; }
+                if (snapshot.Count < 2) throw new SkipTestException("requires multiple physical displays");
                 var viewing = snapshot.First(d => !d.IsPrimary);
                 using (var controller = new AppController(Path.Combine(settingsDir, "controller"), delegate { return snapshot; }))
                 {
@@ -315,7 +321,7 @@ namespace DisplayVeil.Tests
                     controller.Window.Close();
                 }
             });
-            Run("Failed display refresh cannot start with stale bounds", delegate
+            RunDesktop("Failed display refresh cannot start with stale bounds", delegate
             {
                 bool fail = false;
                 using (var controller = new AppController(Path.Combine(settingsDir, "failed-enumeration"), delegate
@@ -331,7 +337,7 @@ namespace DisplayVeil.Tests
                     controller.Window.Close();
                 }
             });
-            Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed");
+            Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed, " + skipped + " skipped");
             return failed == 0 ? 0 : 1;
         }
         private static List<DisplayInfo> FourDisplays()
@@ -345,9 +351,19 @@ namespace DisplayVeil.Tests
             };
         }
         private static void Assert(bool condition) { if (!condition) throw new Exception("Assertion failed"); }
+        private sealed class SkipTestException : Exception
+        {
+            public SkipTestException(string reason) : base(reason) { }
+        }
+        private static void RunDesktop(string name, Action test)
+        {
+            if (headless) { skipped++; Console.WriteLine("SKIP " + name + " (requires an interactive desktop)"); return; }
+            Run(name, test);
+        }
         private static void Run(string name, Action test)
         {
             try { test(); passed++; Console.WriteLine("PASS " + name); }
+            catch (SkipTestException ex) { skipped++; Console.WriteLine("SKIP " + name + " (" + ex.Message + ")"); }
             catch (Exception ex) { failed++; Console.WriteLine("FAIL " + name + ": " + ex); }
         }
     }

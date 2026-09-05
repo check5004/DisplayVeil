@@ -1,0 +1,7 @@
+* text=auto
+*.cs text eol=lf
+*.md text eol=lf
+*.ps1 text eol=lf
+*.yml text eol=lf
+*.config text eol=lf
+*.manifest text eol=lf

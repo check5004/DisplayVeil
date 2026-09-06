@@ -179,6 +179,21 @@ namespace DisplayVeil.Tests
                 string warning; var settings = new Settings { ViewingId = "movie" };
                 Assert(!new SettingsStore(blocked).Save(settings, out warning) && warning.Length > 0 && settings.ViewingId == "movie");
             });
+            Run("Embedded app icon decodes at WinForms sizes after its stream closes", delegate
+            {
+                using (var source = AppIcon.Load())
+                {
+                    foreach (int size in new[] { 16, 20, 24, 32, 40, 48, 64, 96, 128 })
+                    using (var icon = new Icon(source, size, size))
+                    using (var bitmap = icon.ToBitmap())
+                    {
+                        Assert(icon.Width == size && icon.Height == size);
+                        Assert(bitmap.GetPixel(0, 0).A == 0);
+                        var accent = bitmap.GetPixel(size / 3, size / 3);
+                        Assert(accent.A == 255 && accent.G > accent.R && accent.G > accent.B);
+                    }
+                }
+            });
             RunDesktop("Real display enumeration gives unique identities and physical bounds", delegate
             {
                 var displays = Native.GetDisplays();

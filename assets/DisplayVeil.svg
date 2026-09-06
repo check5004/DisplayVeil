@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Display Veil</title>
+  <desc id="desc">暗い左右の画面を背景に、ミントグリーンの鑑賞画面だけが明るく残るアプリアイコン。</desc>
+  <rect x="8" y="8" width="240" height="240" rx="48" fill="#101319"/>
+  <!-- Covered displays remain deliberately quiet behind the viewing display. -->
+  <rect x="24" y="80" width="72" height="96" rx="12" fill="#536174"/>
+  <rect x="32" y="88" width="56" height="80" rx="5" fill="#000000"/>
+  <rect x="160" y="80" width="72" height="96" rx="12" fill="#536174"/>
+  <rect x="168" y="88" width="56" height="80" rx="5" fill="#000000"/>
+  <!-- Solid silhouettes stay legible in 16px title bars and notification areas. -->
+  <rect x="56" y="52" width="144" height="132" rx="18" fill="#101319"/>
+  <rect x="64" y="60" width="128" height="116" rx="12" fill="#82dec3"/>
+  <path d="M112 88 152 118 112 148Z" fill="#101319"/>
+  <path d="M116 176H140V196H116Z" fill="#82dec3"/>
+  <rect x="88" y="196" width="80" height="12" rx="6" fill="#82dec3"/>
+</svg>

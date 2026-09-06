@@ -40,6 +40,15 @@ try {
     if (Test-Path -LiteralPath $sentinel) { Remove-Item -LiteralPath $sentinel }
 }
 $hash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+Add-Type -AssemblyName System.Drawing
+$exeIcon = [Drawing.Icon]::ExtractAssociatedIcon($binary)
+try {
+    $iconBitmap = $exeIcon.ToBitmap()
+    try {
+        $accent = $iconBitmap.GetPixel([int][Math]::Floor($iconBitmap.Width / 3), [int][Math]::Floor($iconBitmap.Height / 3))
+        Assert-True ($accent.A -eq 255 -and $accent.G -gt $accent.R -and $accent.G -gt $accent.B) 'EXE exposes the mint viewing-display icon to Windows'
+    } finally { $iconBitmap.Dispose() }
+} finally { $exeIcon.Dispose() }
 Assert-True ((Get-Content -LiteralPath $checksum -Raw).Trim() -ceq "$hash  $([IO.Path]::GetFileName($archive))") 'SHA-256 matches the packaged ZIP'
 $rejected = $false
 try { & (Join-Path $root 'build.ps1') -ExpectedVersion '99999.0.0' | Out-Null }

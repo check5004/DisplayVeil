@@ -41,6 +41,7 @@ namespace DisplayVeil
         private readonly Func<List<DisplayInfo>> readDisplays;
         private readonly HotkeyManager hotkeys;
         private readonly NotifyIcon tray;
+        private readonly Icon trayIcon = AppIcon.Load();
         private readonly ToolStripMenuItem toggleItem;
         private readonly Timer timer;
         private readonly Stopwatch clock = Stopwatch.StartNew();
@@ -72,7 +73,7 @@ namespace DisplayVeil
             menu.Items.Add("すべて解除", null, delegate { Stop(null); });
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Display Veil を終了", null, delegate { Window.Close(); });
-            tray = new NotifyIcon { Icon = SystemIcons.Application, Text = "Display Veil — 待機中", Visible = true, ContextMenuStrip = menu };
+            tray = new NotifyIcon { Icon = trayIcon, Text = "Display Veil — 待機中", Visible = true, ContextMenuStrip = menu };
             tray.DoubleClick += delegate { ShowUi(null); };
             ApplyHotkeys();
             Window.RefreshDisplays(Displays);
@@ -305,6 +306,7 @@ namespace DisplayVeil
                 tray.Visible = false;
                 var menu = tray.ContextMenuStrip;
                 tray.Dispose();
+                trayIcon.Dispose();
                 menu.Dispose();
             }
             base.Dispose(disposing);

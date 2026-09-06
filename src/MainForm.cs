@@ -61,6 +61,7 @@ namespace DisplayVeil
     internal sealed class MainForm : Form
     {
         private readonly AppController controller;
+        private readonly Icon applicationIcon = AppIcon.Load();
         private readonly MonitorMap map;
         private readonly ListBox list;
         private readonly Label selection, status, hotkeyStatus;
@@ -79,7 +80,7 @@ namespace DisplayVeil
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(900, 790);
             MinimumSize = new Size(800, 720);
-            Icon = SystemIcons.Application;
+            Icon = applicationIcon;
 
             var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 7,
                 Padding = new Padding(26, 20, 26, 16), BackColor = Theme.Background };
@@ -199,6 +200,11 @@ namespace DisplayVeil
                     Bounds = new Rectangle(work.X, work.Y, Math.Min(Width, work.Width), Math.Min(Height, work.Height));
                 }
             };
+        }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing) applicationIcon.Dispose();
         }
         private void SelectDisplay(string id)
         {

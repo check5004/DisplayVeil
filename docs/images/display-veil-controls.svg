@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+  <title id="title">Display Veil — 必要な画面だけ、ちょっと操作。</title>
+  <desc id="desc">鑑賞画面以外の1台の操作例。黒幕をダブルクリックして一時表示し、マウスがその画面から離れると1.5秒後に黒幕に戻ります。自動復帰が有効かつ固定していない場合の動作です。固定するボタンで表示を維持でき、右クリックからすべて解除できます。</desc>
+  <defs>
+    <style>
+      text { font-family: 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif; fill: #ebf0f6; }
+      .muted { fill: #aab7c8; } .accent { fill: #82dec3; }
+      .body { font-size: 24px; } .small { font-size: 21px; }
+    </style>
+    <g id="monitor">
+      <rect width="312" height="185" rx="10" fill="#303947"/>
+      <rect x="8" y="8" width="296" height="169" rx="5" fill="#000"/>
+      <path d="M156 188V207M118 211H194" stroke="#66778b" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g id="pointer">
+      <path d="M0 0V43L11 32 22 54 33 48 22 27H40Z" fill="#ebf0f6" stroke="#101319" stroke-width="3" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <rect width="1440" height="820" rx="24" fill="#101319"/>
+  <rect x="56" y="53" width="6" height="28" rx="3" fill="#82dec3"/>
+  <text x="80" y="78" font-size="27" font-weight="700">Display Veil</text>
+  <text x="1384" y="77" text-anchor="end" class="small muted">鑑賞中の操作</text>
+  <text x="56" y="157" font-size="52" font-weight="700">必要な画面だけ、ちょっと操作。</text>
+  <text x="58" y="206" font-size="26" class="muted">鑑賞画面はそのままに、黒くした画面を1台ずつ開けます。</text>
+
+  <rect x="56" y="250" width="408" height="371" rx="18" fill="#191e27" stroke="#303947"/>
+  <text x="84" y="296" font-size="25" font-weight="700" class="accent">01</text>
+  <text x="136" y="296" font-size="27" font-weight="700">黒幕をダブルクリック</text>
+  <use href="#monitor" x="104" y="328"/>
+  <circle cx="268" cy="409" r="26" fill="none" stroke="#82dec3" stroke-width="3"/>
+  <circle cx="268" cy="409" r="38" fill="none" stroke="#43675f" stroke-width="2"/>
+  <use href="#pointer" x="268" y="409"/>
+  <text x="260" y="588" text-anchor="middle" class="body">その画面だけを一時表示</text>
+
+  <path d="M479 431H497M489 422 498 431 489 440" fill="none" stroke="#82dec3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="516" y="250" width="408" height="371" rx="18" fill="#191e27" stroke="#43675f"/>
+  <text x="544" y="296" font-size="25" font-weight="700" class="accent">02</text>
+  <text x="596" y="296" font-size="27" font-weight="700">裏のアプリを操作</text>
+  <use href="#monitor" x="564" y="328"/>
+  <rect x="572" y="336" width="296" height="169" rx="5" fill="#d9e4ec"/>
+  <rect x="572" y="336" width="296" height="36" rx="5" fill="#284b44"/>
+  <text x="720" y="361" text-anchor="middle" font-size="20" font-weight="700" class="accent">操作バー</text>
+  <rect x="590" y="389" width="59" height="97" rx="4" fill="#afc0cf"/>
+  <rect x="665" y="391" width="176" height="10" rx="4" fill="#738da3"/>
+  <rect x="665" y="415" width="124" height="8" rx="4" fill="#a6b9c8"/>
+  <rect x="665" y="437" width="153" height="8" rx="4" fill="#a6b9c8"/>
+  <use href="#pointer" x="799" y="441"/>
+  <text x="720" y="588" text-anchor="middle" class="body">確認も、キーボード作業も</text>
+
+  <path d="M939 431H957M949 422 958 431 949 440" fill="none" stroke="#82dec3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="976" y="250" width="408" height="371" rx="18" fill="#191e27" stroke="#303947"/>
+  <text x="1004" y="296" font-size="25" font-weight="700" class="accent">03</text>
+  <text x="1056" y="296" font-size="27" font-weight="700">マウスを画面の外へ</text>
+  <use href="#monitor" x="1024" y="328"/>
+  <text x="1180" y="421" text-anchor="middle" font-size="38" font-weight="700" class="accent">1.5 秒後</text>
+  <text x="1180" y="459" text-anchor="middle" class="small muted">自動で黒幕に戻る</text>
+  <path d="M1285 503H1344" fill="none" stroke="#82dec3" stroke-width="3" stroke-dasharray="6 6"/>
+  <use href="#pointer" x="1344" y="497"/>
+  <text x="1180" y="588" text-anchor="middle" class="body">そのまま映画に戻れる</text>
+
+  <rect x="56" y="652" width="648" height="84" rx="12" fill="#213c37"/>
+  <text x="84" y="686" class="body accent" font-weight="700">作業を続けたいときは「固定する」</text>
+  <text x="84" y="716" class="small">マウスが離れても、表示を維持します。</text>
+  <rect x="728" y="652" width="656" height="84" rx="12" fill="#191e27" stroke="#303947"/>
+  <text x="756" y="686" class="body" font-weight="700">すべて戻すなら、黒幕を右クリック</text>
+  <text x="756" y="716" class="small muted">「すべて解除」で全画面の黒幕を外せます。</text>
+  <text x="56" y="781" class="small muted">動作のイメージ / 自動復帰が有効・固定していない場合。ドラッグ中は自動で戻りません。</text>
+</svg>

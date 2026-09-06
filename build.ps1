@@ -33,6 +33,18 @@ Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $output -Force
 $docsOutput = Join-Path $output 'docs'
 New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
 Copy-Item -Path (Join-Path $root 'docs\*.md') -Destination $docsOutput -Force
+# Keep README images and its linked article available in extracted distributions.
+$docAssets = @(
+    Get-ChildItem -LiteralPath (Join-Path $root 'docs\images') -File |
+        Where-Object { $_.Extension -in @('.svg', '.png') } |
+        ForEach-Object { @{ Source = $_.FullName; Relative = 'images/' + $_.Name } }
+    @{ Source = (Join-Path $root 'docs\blog\qiita-display-veil.txt'); Relative = 'blog/qiita-display-veil.txt' }
+)
+foreach ($asset in $docAssets) {
+    $destination = Join-Path $docsOutput $asset.Relative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath $asset.Source -Destination $destination -Force
+}
 Write-Output "Built: $output\DisplayVeil.exe"
 if ($Test) {
     $testOutput = Join-Path $root 'artifacts\tests'
@@ -58,6 +70,9 @@ if ($Package) {
     )
     foreach ($document in Get-ChildItem -LiteralPath (Join-Path $root 'docs') -Filter '*.md') {
         $files += @{ Source = $document.FullName; Entry = 'DisplayVeil/docs/' + $document.Name }
+    }
+    foreach ($asset in $docAssets) {
+        $files += @{ Source = $asset.Source; Entry = 'DisplayVeil/docs/' + $asset.Relative }
     }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $stream = [IO.File]::Open($archive, [IO.FileMode]::Create, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)

@@ -1,18 +1,49 @@
 # Display Veil
 
-映画を見る画面を残し、ほかのディスプレイを黒く覆う Windows アプリです。
-Windows の「メインディスプレイ」とは別に、鑑賞する画面を選べます。
+**映画のある画面だけ、明るく。**
+
+映画を見る画面を残し、ほかのディスプレイを黒く覆う Windows 向けフリーソフトです。
+マルチディスプレイ環境で、ほかの画面の明るさが気になるときに使えます。
+
+![Display Veil の使用前と使用中。選んだ鑑賞画面を残し、ほかの画面を黒幕で覆う](docs/images/display-veil-overview.svg)
+
+- **鑑賞する画面を自由に選択** — Windows の「メインディスプレイ」とは別に選べます。
+- **必要な画面だけ一時操作** — 黒幕をダブルクリックすると、その画面のアプリを操作できます。
+- **映画に戻ると自動で黒幕に** — 操作した画面からマウスが離れると、1.5 秒後に黒く戻ります。「固定する」で表示を維持することもできます。
+- **展開してすぐ起動** — インストール・管理者権限は不要。通信・テレメトリ・常駐サービスもありません。
+
+[ダウンロード（GitHub Releases）](https://github.com/check5004/DisplayVeil/releases) · [起動と使い方](#起動) · [鑑賞中の操作](#鑑賞中の操作) · [開発と検証](#開発と検証)
+
+## 設定画面
+
+![Display Veil の設定画面。4台の配置図、鑑賞画面の選択、自動復帰設定、ショートカット設定と「鑑賞をはじめる」ボタン](docs/images/DisplayVeil_SampleImage.png)
+
+4 台を接続した環境でのスクリーンショットです。配置図または画面一覧から、鑑賞する 1 台を選びます。
+上の図解は 3 台での動作例で、台数や配置を固定するものではありません。
 
 ## 起動
 
-配布ZIPを「すべて展開」し、`DisplayVeil/DisplayVeil.exe` を開きます。ソースからビルドした場合は `artifacts/DisplayVeil/DisplayVeil.exe` です。インストール・管理者権限は不要です。
-Windows 10 / 11、.NET Framework 4.8 以降が必要です。配布フォルダーの `.exe.config` を exe と一緒に置いてください。
+[GitHub Releases](https://github.com/check5004/DisplayVeil/releases) の Assets から `DisplayVeil-<バージョン>-win.zip` を取得し、「すべて展開」して `DisplayVeil/DisplayVeil.exe` を開きます。
+`Source code (zip)` にはビルド済み exe は含まれません。ソースからビルドした場合の起動先は `artifacts/DisplayVeil/DisplayVeil.exe` です。
+
+| 必要な環境 | 内容 |
+|---|---|
+| OS | Windows 10 / 11 |
+| ランタイム | .NET Framework 4.8 以降 |
+| ディスプレイ | 2 台以上を Windows の「拡張」表示で接続 |
+| 導入 | ZIP を展開して起動。インストール・管理者権限は不要 |
+
+配布フォルダーの `.exe.config` を exe と一緒に置いてください。
 
 1. 「画面番号を表示」で実際の画面と配置図を照合します。番号はアプリ内の番号です。
 2. 配置図または画面一覧で、映画を見る画面を選択します。
 3. 「鑑賞をはじめる」を押すと、設定画面が隠れ、選択した画面以外が黒くなります。
 
 ## 鑑賞中の操作
+
+![鑑賞中の操作の流れ。黒幕をダブルクリックして一時操作し、マウスが離れると1.5秒後に黒く戻る。固定や全解除も可能](docs/images/display-veil-controls.svg)
+
+図解は自動復帰が有効で、表示を固定していない場合の動作です。
 
 | やりたいこと | 操作 |
 |---|---|
@@ -66,10 +97,15 @@ GitHub Actionsではpush・PR時にビルドとテストを行い、`v1.0.0`形�
 初回設定・バージョン更新・公開手順は [配布の手順](docs/RELEASING.md) を参照してください。
 
 NuGet や追加 SDK は使用せず、Windows の .NET Framework コンパイラーでビルドします。
-ソースは `src/`、テストは `tests/`、設計は `docs/DESIGN.md`、実機チェック項目は `docs/TESTING.md` です。
+ソースは `src/`、テストは `tests/`、設計は [設計ドキュメント](docs/DESIGN.md)、実機チェック項目は [テスト手順](docs/TESTING.md) を参照してください。
 
 検証用に設定の保存先を分ける場合:
 
 ```powershell
 .\artifacts\DisplayVeil\DisplayVeil.exe --settings-dir .\artifacts\manual-settings
 ```
+
+## 紹介記事・画像素材
+
+ブログ向けに、編集できる SVG 図解と掲載用 PNG を [docs/images/](docs/images/) に用意しています。
+Qiita 向けの紹介記事は [テキスト原稿](docs/blog/qiita-display-veil.txt)、画像の対応表と掲載手順は [記事・画像の使い方](docs/BLOGGING.md) を参照してください。

@@ -26,6 +26,14 @@ try {
         Assert-True ($entries -contains 'DisplayVeil/DisplayVeil.exe.config') 'ZIP contains the required runtime configuration'
         Assert-True ($entries -contains 'DisplayVeil/README.md') 'ZIP contains usage instructions'
         Assert-True ($entries -contains 'DisplayVeil/docs/RELEASING.md') 'ZIP contains release documentation'
+        foreach ($imageName in @('DisplayVeil_SampleImage.png', 'display-veil-overview.svg', 'display-veil-controls.svg', 'display-veil-overview.png', 'display-veil-controls.png')) {
+            $entryName = 'DisplayVeil/docs/images/' + $imageName
+            Assert-True ($entries -contains $entryName) "ZIP contains documentation image $imageName"
+            $sourceHash = (Get-FileHash -LiteralPath (Join-Path $root "docs\images\$imageName") -Algorithm SHA256).Hash
+            $copiedHash = (Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $binary) "docs\images\$imageName") -Algorithm SHA256).Hash
+            Assert-True ($sourceHash -ceq $copiedHash) "Build output preserves documentation image $imageName"
+        }
+        Assert-True ($entries -contains 'DisplayVeil/docs/blog/qiita-display-veil.txt') 'ZIP contains the article linked from README'
         Assert-True (-not ($entries | Where-Object { $_ -match 'not-for-release-|settings\.json|Tests\.exe' })) 'ZIP excludes local settings, tests and stale output files'
     } finally { $zip.Dispose() }
 } finally {

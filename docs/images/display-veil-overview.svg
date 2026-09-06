@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="800" viewBox="0 0 1440 800" role="img" aria-labelledby="title desc">
+  <title id="title">Display Veil — 映画のある画面だけ、明るく。</title>
+  <desc id="desc">拡張表示の3画面の例。開始前はすべての画面が見え、開始後は選んだ中央の鑑賞画面を残し、左右の画面を黒幕で覆います。Windowsのメイン画面とは別に鑑賞画面を選べます。電源や輝度は変更しません。</desc>
+  <defs>
+    <style>
+      text { font-family: 'Yu Gothic', 'Meiryo', 'Noto Sans JP', sans-serif; fill: #ebf0f6; }
+      .muted { fill: #aab7c8; } .accent { fill: #82dec3; }
+      .label { font-size: 24px; font-weight: 700; } .small { font-size: 21px; }
+    </style>
+    <g id="work">
+      <rect width="144" height="92" rx="5" fill="#d9e4ec"/>
+      <rect width="144" height="16" rx="5" fill="#91a6b7"/>
+      <rect x="10" y="27" width="30" height="54" rx="3" fill="#afc0cf"/>
+      <rect x="50" y="28" width="79" height="7" rx="3" fill="#738da3"/>
+      <rect x="50" y="45" width="59" height="6" rx="3" fill="#a6b9c8"/>
+      <rect x="50" y="61" width="69" height="6" rx="3" fill="#a6b9c8"/>
+    </g>
+    <g id="movie">
+      <rect width="192" height="120" rx="5" fill="#203f4b"/>
+      <circle cx="145" cy="32" r="15" fill="#82dec3"/>
+      <path d="M0 102 54 45 112 102 150 65 192 108V120H0Z" fill="#376a72"/>
+      <path d="M0 117 70 79 131 120H0Z" fill="#528c86"/>
+    </g>
+  </defs>
+  <rect width="1440" height="800" rx="24" fill="#101319"/>
+  <rect x="56" y="53" width="6" height="28" rx="3" fill="#82dec3"/>
+  <text x="80" y="78" font-size="27" font-weight="700">Display Veil</text>
+  <text x="1384" y="77" text-anchor="end" class="small muted">WINDOWS / 拡張ディスプレイ</text>
+  <text x="56" y="157" font-size="52" font-weight="700">映画のある画面だけ、明るく。</text>
+  <text x="58" y="206" font-size="26" class="muted">鑑賞する1台を選ぶと、ほかの画面を黒幕で覆います。</text>
+
+  <rect x="56" y="250" width="620" height="360" rx="18" fill="#191e27" stroke="#303947"/>
+  <text x="84" y="297" class="label muted">BEFORE</text>
+  <text x="84" y="337" font-size="27" font-weight="700">ほかの画面の明るさが気になる</text>
+  <g transform="translate(84 410)">
+    <rect x="-6" y="-6" width="156" height="104" rx="8" fill="#303947"/>
+    <use href="#work"/>
+    <path d="M72 98V117M46 119H98" stroke="#66778b" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(270 382)">
+    <rect x="-6" y="-6" width="204" height="132" rx="8" fill="#82dec3"/>
+    <use href="#movie"/>
+    <path d="M96 128V147M65 149H127" stroke="#82dec3" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(498 410)">
+    <rect x="-6" y="-6" width="156" height="104" rx="8" fill="#303947"/>
+    <use href="#work"/>
+    <path d="M72 98V117M46 119H98" stroke="#66778b" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="156" y="574" text-anchor="middle" class="small muted">作業画面</text>
+  <text x="366" y="574" text-anchor="middle" class="label accent">鑑賞画面</text>
+  <text x="570" y="574" text-anchor="middle" class="small muted">作業画面</text>
+
+  <path d="M697 432H741M730 421 741 432 730 443" fill="none" stroke="#82dec3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="764" y="250" width="620" height="360" rx="18" fill="#191e27" stroke="#43675f"/>
+  <text x="792" y="297" class="label accent">AFTER</text>
+  <text x="792" y="337" font-size="27" font-weight="700">選んだ画面は、そのまま鑑賞</text>
+  <g transform="translate(792 410)">
+    <rect x="-6" y="-6" width="156" height="104" rx="8" fill="#485367"/>
+    <rect width="144" height="92" rx="5" fill="#000"/>
+    <path d="M72 98V117M46 119H98" stroke="#66778b" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(978 382)">
+    <rect x="-6" y="-6" width="204" height="132" rx="8" fill="#82dec3"/>
+    <use href="#movie"/>
+    <path d="M96 128V147M65 149H127" stroke="#82dec3" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(1206 410)">
+    <rect x="-6" y="-6" width="156" height="104" rx="8" fill="#485367"/>
+    <rect width="144" height="92" rx="5" fill="#000"/>
+    <path d="M72 98V117M46 119H98" stroke="#66778b" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="864" y="574" text-anchor="middle" class="small muted">黒幕で覆う</text>
+  <text x="1074" y="574" text-anchor="middle" class="label accent">そのまま</text>
+  <text x="1278" y="574" text-anchor="middle" class="small muted">黒幕で覆う</text>
+
+  <rect x="56" y="642" width="1328" height="76" rx="12" fill="#213c37"/>
+  <path d="m83 679 9 9 18-21" fill="none" stroke="#82dec3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="128" y="689" font-size="27" font-weight="700">鑑賞画面は、Windows の「メインディスプレイ」と別に選べます。</text>
+  <text x="56" y="764" class="small muted">動作のイメージ（3画面の例） / ディスプレイの電源・輝度・配置は変更しません。</text>
+</svg>

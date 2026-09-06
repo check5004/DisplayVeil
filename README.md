@@ -109,3 +109,10 @@ NuGet や追加 SDK は使用せず、Windows の .NET Framework コンパイラ
 
 ブログ向けに、編集できる SVG 図解と掲載用 PNG を [docs/images/](docs/images/) に用意しています。
 Qiita 向けの紹介記事は [テキスト原稿](docs/blog/qiita-display-veil.txt)、画像の対応表と掲載手順は [記事・画像の使い方](docs/BLOGGING.md) を参照してください。
+
+## ライセンス
+
+[MIT License](LICENSE) で公開しています。ソースコード・ドキュメント・図解・アプリアイコンを含みます。
+利用・改変・再配布・商用利用が可能です。再配布時は著作権表示とライセンス全文を含めてください。無保証で提供します。
+
+Copyright (c) 2026 Tate (check5004)

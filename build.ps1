@@ -31,6 +31,7 @@ if ($ExpectedVersion -and $ExpectedVersion -cne $version) {
 }
 Copy-Item -LiteralPath (Join-Path $root 'App.config') -Destination (Join-Path $output 'DisplayVeil.exe.config') -Force
 Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $output -Force
+Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination $output -Force
 $docsOutput = Join-Path $output 'docs'
 New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
 Copy-Item -Path (Join-Path $root 'docs\*.md') -Destination $docsOutput -Force
@@ -67,7 +68,8 @@ if ($Package) {
     $files = @(
         @{ Source = $binary; Entry = 'DisplayVeil/DisplayVeil.exe' },
         @{ Source = "$binary.config"; Entry = 'DisplayVeil/DisplayVeil.exe.config' },
-        @{ Source = (Join-Path $root 'README.md'); Entry = 'DisplayVeil/README.md' }
+        @{ Source = (Join-Path $root 'README.md'); Entry = 'DisplayVeil/README.md' },
+        @{ Source = (Join-Path $root 'LICENSE'); Entry = 'DisplayVeil/LICENSE' }
     )
     foreach ($document in Get-ChildItem -LiteralPath (Join-Path $root 'docs') -Filter '*.md') {
         $files += @{ Source = $document.FullName; Entry = 'DisplayVeil/docs/' + $document.Name }

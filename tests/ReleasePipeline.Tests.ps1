@@ -25,6 +25,13 @@ try {
         Assert-True ($entries -contains 'DisplayVeil/DisplayVeil.exe') 'ZIP contains the executable'
         Assert-True ($entries -contains 'DisplayVeil/DisplayVeil.exe.config') 'ZIP contains the required runtime configuration'
         Assert-True ($entries -contains 'DisplayVeil/README.md') 'ZIP contains usage instructions'
+        $licenseEntry = $zip.GetEntry('DisplayVeil/LICENSE')
+        Assert-True ($null -ne $licenseEntry) 'ZIP contains the MIT license'
+        $licenseReader = New-Object IO.StreamReader($licenseEntry.Open())
+        try {
+            Assert-True ($licenseReader.ReadToEnd() -ceq [IO.File]::ReadAllText((Join-Path $root 'LICENSE'))) 'ZIP preserves the full license and copyright notice'
+        } finally { $licenseReader.Dispose() }
+        Assert-True ([IO.File]::ReadAllText((Join-Path (Split-Path -Parent $binary) 'LICENSE')) -ceq [IO.File]::ReadAllText((Join-Path $root 'LICENSE'))) 'Build output preserves the full license'
         Assert-True ($entries -contains 'DisplayVeil/docs/RELEASING.md') 'ZIP contains release documentation'
         foreach ($imageName in @('DisplayVeil_SampleImage.png', 'display-veil-overview.svg', 'display-veil-controls.svg', 'display-veil-overview.png', 'display-veil-controls.png')) {
             $entryName = 'DisplayVeil/docs/images/' + $imageName

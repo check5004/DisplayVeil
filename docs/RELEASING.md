@@ -50,7 +50,7 @@ git push origin v1.0.1
 
 ローカルの生成先は `artifacts/release/` です。Release の Assets に次のファイルを公開します。
 
-- `DisplayVeil-1.0.0-win.zip`：exe、exe.config、README、ドキュメント一式
+- `DisplayVeil-1.0.0-win.zip`：exe、exe.config、MITライセンス全文（`LICENSE`）、README、画像・ドキュメント一式
 - `DisplayVeil-1.0.0-win.zip.sha256`：ZIPのSHA-256
 
 利用者はZIPを展開し、`DisplayVeil/DisplayVeil.exe` を起動します。

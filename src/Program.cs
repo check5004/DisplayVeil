@@ -25,6 +25,10 @@ namespace DisplayVeil
                         if (args[i] == "--settings-dir") settingsDirectory = Path.GetFullPath(args[i + 1]);
                     using (var controller = new AppController(settingsDirectory))
                     {
+                        controller.Window.BeginInvoke(new Action(async delegate
+                        {
+                            await controller.Updates.CheckAsync(false, DateTime.UtcNow);
+                        }));
                         Application.ThreadException += delegate(object sender, ThreadExceptionEventArgs e)
                         {
                             controller.Stop(null);

@@ -17,6 +17,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 $sources = @(Get-ChildItem -LiteralPath (Join-Path $root 'src') -Filter '*.cs' | ForEach-Object FullName)
 $common = @('/nologo', '/optimize+', '/warn:4', '/warnaserror+', '/platform:anycpu', '/utf8output', '/codepage:65001', '/reference:System.dll', '/reference:System.Core.dll', '/reference:System.Drawing.dll', '/reference:System.Windows.Forms.dll', '/reference:System.Runtime.Serialization.dll', "/win32manifest:$root\app.manifest")
 $common += @("/win32icon:$root\assets\DisplayVeil.ico", "/resource:$root\assets\DisplayVeil.ico,DisplayVeil.App.ico")
+$common += '/reference:System.Net.Http.dll'
 & $compiler @common '/target:winexe' "/out:$output\DisplayVeil.exe" @sources
 if ($LASTEXITCODE -ne 0) { throw 'Application build failed.' }
 $binary = Join-Path $output 'DisplayVeil.exe'

@@ -66,6 +66,9 @@ namespace DisplayVeil
         private readonly ListBox list;
         private readonly Label selection, status, hotkeyStatus;
         private readonly Button start;
+        private readonly Label updateStatus;
+        private readonly Button checkUpdates;
+        private readonly LinkLabel releaseLink;
         private bool refreshing;
         public event Action<int> HotkeyPressed;
         public MainForm(AppController controller)
@@ -78,11 +81,11 @@ namespace DisplayVeil
             AutoScaleDimensions = new SizeF(96, 96);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(900, 790);
-            MinimumSize = new Size(800, 720);
+            ClientSize = new Size(900, 890);
+            MinimumSize = new Size(800, 790);
             Icon = applicationIcon;
 
-            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 7,
+            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 8,
                 Padding = new Padding(26, 20, 26, 16), BackColor = Theme.Background };
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
@@ -91,6 +94,7 @@ namespace DisplayVeil
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 86));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 134));
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
             root.RowStyles.Add(new RowStyle(SizeType.Absolute, 94));
             Controls.Add(root);
 
@@ -167,6 +171,40 @@ namespace DisplayVeil
             shortcuts.SetColumnSpan(hotkeyStatus, 3);
             root.Controls.Add(shortcuts, 0, 5);
 
+            var updates = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3, Margin = Padding.Empty };
+            updates.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            updates.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
+            updates.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+            updates.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+            updates.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            updateStatus = Theme.Label("", 9, Theme.Muted, FontStyle.Regular);
+            updateStatus.AutoSize = false;
+            updateStatus.Dock = DockStyle.Fill;
+            updateStatus.TextAlign = ContentAlignment.MiddleLeft;
+            checkUpdates = Theme.Button("今すぐ更新を確認", false);
+            checkUpdates.Dock = DockStyle.Fill;
+            checkUpdates.Margin = new Padding(0, 0, 0, 2);
+            checkUpdates.Click += async delegate { await controller.Updates.CheckAsync(true, DateTime.UtcNow); };
+            releaseLink = new LinkLabel { AutoSize = false, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft,
+                LinkColor = Theme.Accent, ActiveLinkColor = Theme.Text, VisitedLinkColor = Theme.Accent };
+            releaseLink.LinkClicked += delegate
+            {
+                string url = controller.Updates.Available == null ? UpdateRelease.ReleasesUrl : controller.Updates.Available.PageUrl;
+                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+                catch (System.ComponentModel.Win32Exception) { updateStatus.Text = "ブラウザーを開けませんでした。GitHubで DisplayVeil を検索してください。"; }
+            };
+            var autoUpdates = new CheckBox { AutoSize = true, Text = "起動時にGitHubで更新を確認する（1日1回）",
+                Checked = controller.Settings.AutoCheckUpdates, ForeColor = Theme.Muted, Margin = new Padding(3, 3, 0, 0) };
+            autoUpdates.CheckedChanged += delegate { controller.Settings.AutoCheckUpdates = autoUpdates.Checked; controller.SaveSettings(); };
+            updates.Controls.Add(updateStatus, 0, 0);
+            updates.Controls.Add(checkUpdates, 1, 0);
+            updates.Controls.Add(releaseLink, 0, 1);
+            updates.SetColumnSpan(releaseLink, 2);
+            updates.Controls.Add(autoUpdates, 0, 2);
+            updates.SetColumnSpan(autoUpdates, 2);
+            root.Controls.Add(updates, 0, 6);
+            RefreshUpdates();
+
             var footer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 2, Margin = Padding.Empty };
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 222));
@@ -188,7 +226,7 @@ namespace DisplayVeil
             footer.Controls.Add(start, 1, 0);
             footer.Controls.Add(help, 0, 1);
             footer.SetColumnSpan(help, 2);
-            root.Controls.Add(footer, 0, 6);
+            root.Controls.Add(footer, 0, 7);
             FormClosing += delegate { controller.Stop(null); };
             Resize += delegate { if (WindowState == FormWindowState.Minimized) Hide(); };
             Shown += delegate
@@ -252,6 +290,15 @@ namespace DisplayVeil
             e.DrawFocusRectangle();
         }
         public void ShowStatus(string message) { if (!String.IsNullOrEmpty(message)) status.Text = message; }
+        public void RefreshUpdates()
+        {
+            var updates = controller.Updates;
+            updateStatus.Text = updates.Message;
+            updateStatus.ForeColor = updates.Available == null ? Theme.Muted : Theme.Accent;
+            checkUpdates.Enabled = !updates.Busy;
+            releaseLink.Text = updates.Available == null ? "GitHubのリリースページを開く" :
+                updates.Available.Tag + " のリリースページを開く（ダウンロード・展開は手動）";
+        }
         public void ShowHotkeyStatus(string message, bool warning)
         {
             hotkeyStatus.Text = message;

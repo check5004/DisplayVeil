@@ -81,13 +81,33 @@ GitHub CLI の [`gh release create --verify-tag`](https://cli.github.com/manual/
 .\build.ps1 -Test -Package
 
 # GitHub Actions と同じ、画面を表示しない検証
-.\build.ps1 -Test -Headless -Package -ExpectedVersion 1.0.0
+.\build.ps1 -Test -Headless -Package -ExpectedVersion 1.1.0
 .\tests\ReleasePipeline.Tests.ps1
 ```
 
-Headless モードはロジック・設定・アイコンの27件を実行し、実デスクトップを必要とする9件を `SKIP` と明示します。
+Headless モードはロジック・設定・アイコン・更新確認の39件を実行し、実デスクトップを必要とする9件を `SKIP` と明示します。
 CIで実際の複数画面・マウス操作を確認したことにはなりません。公開前の実機チェックは `TESTING.md` を使用してください。
 配布処理のテストはGitHub CLIをモックし、ZIP内容・ハッシュ・バージョン不一致・Draft再開・アップロード失敗などを確認します。
 テスト自体がGitHubへ通信したりReleaseを作成したりすることはありません。
 
 Actionsは公式リポジトリで確認したコミットSHAに固定しています。更新する場合は各Actionの公式リリースを確認してSHAを更新してください。
+
+## 更新通知の公開後テスト
+
+v1.0.0の公開済みバイナリには更新確認機能がないため、今回のソースからバージョンだけを下げた検証用exeを作る。
+
+```powershell
+.\tools\New-UpdateTestBuild.ps1 -Version 1.0.0
+.\artifacts\update-check-test\DisplayVeil.exe --settings-dir .\artifacts\update-check-test\settings
+```
+
+検証用exeは `artifacts/update-check-test/` に隔離し、配布ZIPやGitには含めない。通常の設定も変更しない。アプリは二重起動を防ぐため、別のDisplay Veilは先に終了する。
+
+1. v1.1.0公開前に検証用1.0.0を起動し、公開中のv1.0.0に対して更新なしになることを確認する。
+2. 実装・ローカルテストを完了し、v1.1.0タグをpushする。今回はここで作業を停止し、利用者がActionsを監視する。
+3. 公開完了の連絡後、検証用1.0.0の「今すぐ更新を確認」でv1.1.0の通知を確認する。開いたままでは自動検出しない。
+4. 通知リンクがv1.1.0のページを開き、配布ZIPが取得できることを確認する。
+5. 検証用exeを閉じ、別の空の `--settings-dir` で再起動し、初回起動の自動確認でもv1.1.0を検知することを確認する。通常は24時間制限があるので単なる再起動では再通信しない。
+6. 公開ZIPを別フォルダーへ展開し、同じ検証用設定で新版を起動する。設定が保持され、手動確認で更新なしになることを確認する。
+
+公開後の実行結果は `TESTING.md` に追記する。

@@ -18,6 +18,7 @@ namespace DisplayVeil.Tests
         {
             if (args.Any(arg => arg != "--headless")) { Console.Error.WriteLine("Usage: DisplayVeil.Tests.exe [--headless]"); return 2; }
             headless = args.Contains("--headless");
+            UpdateTests.RunAll(Run);
             if (!headless)
             {
                 Native.EnableDpiAwareness();
@@ -154,18 +155,20 @@ namespace DisplayVeil.Tests
             {
                 var store = new SettingsStore(settingsDir); string warning;
                 var settings = store.Load(out warning);
-                Assert(settings.AutoCover && settings.ShowMouseHints && settings.ToggleKey == "F9");
+                Assert(settings.AutoCover && settings.ShowMouseHints && settings.ToggleKey == "F9" && settings.AutoCheckUpdates);
+                settings.AutoCheckUpdates = false; settings.LastUpdateCheckUtcTicks = DateTime.UtcNow.Ticks; settings.LatestReleaseTag = "v1.1.0";
                 settings.ViewingId = "\\\\?\\DISPLAY#日本語"; settings.AutoCover = false; settings.RevealKey = "B";
                 Assert(store.Save(settings, out warning)); settings.ShowMouseHints = false;
                 Assert(store.Save(settings, out warning));
                 var loaded = store.Load(out warning);
                 Assert(warning == "" && loaded.ViewingId == settings.ViewingId && !loaded.AutoCover && !loaded.ShowMouseHints && loaded.RevealKey == "B");
+                Assert(!loaded.AutoCheckUpdates && loaded.LastUpdateCheckUtcTicks == settings.LastUpdateCheckUtcTicks && loaded.LatestReleaseTag == "v1.1.0");
             });
             Run("Older settings retain defaults for missing fields", delegate
             {
                 File.WriteAllText(Path.Combine(settingsDir, "settings.json"), "{\"ViewingId\":\"movie\"}");
                 string warning; var settings = new SettingsStore(settingsDir).Load(out warning);
-                Assert(settings.ViewingId == "movie" && settings.AutoCover && settings.ShowMouseHints && settings.StopKey == "F11");
+                Assert(settings.ViewingId == "movie" && settings.AutoCover && settings.ShowMouseHints && settings.StopKey == "F11" && settings.AutoCheckUpdates && settings.LastUpdateCheckUtcTicks == 0);
             });
             Run("Corrupt settings recover without crashing", delegate
             {

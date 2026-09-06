@@ -34,6 +34,7 @@ namespace DisplayVeil
     internal sealed class AppController : ApplicationContext
     {
         public Settings Settings { get; private set; }
+        public UpdateMonitor Updates { get; private set; }
         public List<DisplayInfo> Displays { get; private set; }
         public bool Running { get; private set; }
         public MainForm Window { get; private set; }
@@ -60,9 +61,11 @@ namespace DisplayVeil
             store = new SettingsStore(settingsDirectory);
             string warning;
             Settings = store.Load(out warning);
+            Updates = new UpdateMonitor(Settings, UpdateClient.CurrentVersion, UpdateClient.FetchAsync, SaveSettings);
             Displays = readDisplays();
             signature = DisplayLayout.Signature(Displays);
             Window = new MainForm(this);
+            Updates.Changed += Window.RefreshUpdates;
             MainForm = Window;
             hotkeys = new HotkeyManager(Window.Handle);
             Window.HotkeyPressed += HandleHotkey;
@@ -296,6 +299,7 @@ namespace DisplayVeil
             {
                 disposed = true;
                 timer.Stop();
+                Updates.Dispose();
                 timer.Dispose();
                 SystemEvents.DisplaySettingsChanged -= DisplaySettingsChanged;
                 SystemEvents.SessionSwitch -= SessionSwitch;

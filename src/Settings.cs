@@ -14,12 +14,16 @@ namespace DisplayVeil
         [DataMember] public string ToggleKey = "F9";
         [DataMember] public string RevealKey = "F10";
         [DataMember] public string StopKey = "F11";
+        [DataMember] public bool AutoCheckUpdates = true;
+        [DataMember] public long LastUpdateCheckUtcTicks;
+        [DataMember] public string LatestReleaseTag = "";
 
         [OnDeserializing]
         private void SetDefaults(StreamingContext context)
         {
             AutoCover = true; ShowMouseHints = true;
             ToggleKey = "F9"; RevealKey = "F10"; StopKey = "F11";
+            AutoCheckUpdates = true; LatestReleaseTag = "";
         }
     }
 

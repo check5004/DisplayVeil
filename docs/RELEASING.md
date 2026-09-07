@@ -81,11 +81,11 @@ GitHub CLI の [`gh release create --verify-tag`](https://cli.github.com/manual/
 .\build.ps1 -Test -Package
 
 # GitHub Actions と同じ、画面を表示しない検証
-.\build.ps1 -Test -Headless -Package -ExpectedVersion 1.1.1
+.\build.ps1 -Test -Headless -Package -ExpectedVersion 1.1.2
 .\tests\ReleasePipeline.Tests.ps1
 ```
 
-Headless モードはロジック・設定・アイコン・更新確認の39件を実行し、実デスクトップを必要とする15件を `SKIP` と明示します。
+Headless モードはロジック・設定・アイコン・更新確認の39件を実行し、実デスクトップを必要とする18件を `SKIP` と明示します。
 CIで実際の複数画面・マウス操作を確認したことにはなりません。公開前の実機チェックは `TESTING.md` を使用してください。
 配布処理のテストはGitHub CLIをモックし、ZIP内容・ハッシュ・バージョン不一致・Draft再開・アップロード失敗などを確認します。
 テスト自体がGitHubへ通信したりReleaseを作成したりすることはありません。

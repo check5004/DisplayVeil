@@ -118,6 +118,9 @@ namespace DisplayVeil
         private readonly DisplayInfo display;
         private readonly Label status;
         private readonly Button pin;
+        private readonly ToolTip dragHint = new ToolTip();
+        private Control dragSource;
+        private Point dragPointerStart, dragBarStart;
         public event Action CoverRequested;
         public event Action PinRequested;
         public event Action StopRequested;
@@ -134,6 +137,18 @@ namespace DisplayVeil
             cover.Click += delegate { if (CoverRequested != null) CoverRequested(); };
             stop.Click += delegate { if (StopRequested != null) StopRequested(); };
             Controls.AddRange(new Control[] { status, pin, cover, stop });
+            Cursor = Cursors.SizeAll;
+            foreach (Control surface in new Control[] { this, status })
+            {
+                dragHint.SetToolTip(surface, "ドラッグしてメニューを移動");
+                surface.MouseDown += BeginDrag;
+                surface.MouseMove += MoveDrag;
+                surface.MouseUp += delegate(object sender, MouseEventArgs e) { if (e.Button == MouseButtons.Left) EndDrag(); };
+                surface.MouseCaptureChanged += delegate(object sender, EventArgs e)
+                {
+                    if (dragSource == sender && !dragSource.Capture) EndDrag();
+                };
+            }
             float scale = display.Dpi / 96f;
             int width = Math.Min((int)(470 * scale), display.WorkArea.Width);
             int height = (int)(56 * scale);
@@ -146,6 +161,44 @@ namespace DisplayVeil
             stop.SetBounds(cover.Right + gap, gap, bw, height - gap * 2);
             foreach (Control control in Controls) control.Font = Theme.PhysicalFont(9, display.Dpi, FontStyle.Bold);
             Bounds = new Rectangle(display.WorkArea.X + (display.WorkArea.Width - width) / 2, display.WorkArea.Y + (int)(12 * scale), width, height);
+        }
+        private void BeginDrag(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            EndDrag();
+            dragSource = (Control)sender;
+            dragPointerStart = dragSource.PointToScreen(e.Location);
+            dragBarStart = Location;
+            dragSource.Capture = true;
+        }
+        private void MoveDrag(object sender, MouseEventArgs e)
+        {
+            if (dragSource != sender) return;
+            if ((e.Button & MouseButtons.Left) == 0) { EndDrag(); return; }
+            Point pointer = dragSource.PointToScreen(e.Location);
+            Rectangle area = display.WorkArea;
+            int x = dragBarStart.X + pointer.X - dragPointerStart.X;
+            int y = dragBarStart.Y + pointer.Y - dragPointerStart.Y;
+            // Keep the controls on their own display and out of the taskbar area.
+            x = Math.Max(area.Left, Math.Min(x, area.Right - Width));
+            y = Math.Max(area.Top, Math.Min(y, area.Bottom - Height));
+            Place(new Rectangle(x, y, Width, Height));
+        }
+        private void EndDrag()
+        {
+            Control source = dragSource;
+            dragSource = null;
+            if (source != null && source.Capture) source.Capture = false;
+        }
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            if (!Visible) EndDrag();
+            base.OnVisibleChanged(e);
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) { EndDrag(); dragHint.Dispose(); }
+            base.Dispose(disposing);
         }
         public void UpdateStatus(VeilState state, bool autoCover)
         {

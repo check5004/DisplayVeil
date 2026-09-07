@@ -293,6 +293,7 @@ namespace DisplayVeil.Tests
                     }
                 }
             });
+            RevealBarTests.RunAll(RunDesktop);
             RunDesktop("Physical overlay controls fit at 100, 125, 150 and 200 percent", delegate
             {
                 foreach (int dpi in new[] { 96, 120, 144, 192 })

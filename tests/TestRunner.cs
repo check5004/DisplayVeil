@@ -371,7 +371,7 @@ namespace DisplayVeil.Tests
             };
         }
         private static void Assert(bool condition) { if (!condition) throw new Exception("Assertion failed"); }
-        private sealed class SkipTestException : Exception
+        internal sealed class SkipTestException : Exception
         {
             public SkipTestException(string reason) : base(reason) { }
         }

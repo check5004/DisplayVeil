@@ -13,11 +13,13 @@ namespace DisplayVeil.Tests
     {
         public static void RunAll(Action<string, Action> runDesktop)
         {
-            foreach (string scenario in new[] { "window", "minimized-tray", "viewing-tray", "pending-update" })
+            foreach (string scenario in new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop" })
             {
                 string current = scenario;
                 runDesktop("Closing exits the process: " + current, delegate
                 {
+                    if ((current == "curtain-stop" || current == "bar-stop") && Native.GetDisplays().Count < 2)
+                        throw new TestRunner.SkipTestException("requires multiple physical displays");
                     var start = new ProcessStartInfo(Assembly.GetExecutingAssembly().Location,
                         "--shutdown-child " + current)
                     {
@@ -43,7 +45,7 @@ namespace DisplayVeil.Tests
 
         public static int RunChild(string scenario)
         {
-            if (!new[] { "window", "minimized-tray", "viewing-tray", "pending-update" }.Contains(scenario)) return 2;
+            if (!new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop" }.Contains(scenario)) return 2;
             string directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shutdown-settings", Guid.NewGuid().ToString("N"));
             try
             {
@@ -65,11 +67,13 @@ namespace DisplayVeil.Tests
                     controller.ThreadExit += delegate { exited = true; };
                     var tray = (NotifyIcon)typeof(AppController).GetField("tray", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller);
                     if (scenario == "minimized-tray") controller.Window.WindowState = FormWindowState.Minimized;
-                    if (scenario == "viewing-tray")
+                    bool panelStop = scenario == "curtain-stop" || scenario == "bar-stop";
+                    if (scenario == "viewing-tray" || panelStop)
                     {
                         controller.Settings.ViewingId = controller.Displays[0].Id;
                         controller.Start();
                         if (controller.Displays.Count > 1 && !controller.Running) throw new Exception("Viewing did not start");
+                        if (panelStop && !controller.Running) throw new Exception("Panel stop tests require multiple displays");
                         // Also exercise auxiliary window cleanup with a single attached display.
                         controller.Identify();
                     }
@@ -88,6 +92,34 @@ namespace DisplayVeil.Tests
                     timer.Tick += delegate
                     {
                         timer.Stop();
+                        if (panelStop)
+                        {
+                            string viewingId = controller.Settings.ViewingId;
+                            var curtains = Application.OpenForms.OfType<CurtainForm>().ToList();
+                            var bars = Application.OpenForms.OfType<RevealBar>().ToList();
+                            var curtain = curtains.First();
+                            curtain.SetHint(true);
+                            Button stop;
+                            if (scenario == "curtain-stop")
+                            {
+                                stop = (Button)typeof(CurtainForm).GetField("stop", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(curtain);
+                            }
+                            else
+                            {
+                                // Invoke the existing reveal action, then click the bar's real button.
+                                ((Button)typeof(CurtainForm).GetField("reveal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(curtain)).PerformClick();
+                                var bar = Application.OpenForms.OfType<RevealBar>().First(b => b.Visible);
+                                stop = bar.Controls.OfType<Button>().Single(b => b.Text == "全解除");
+                            }
+                            stop.PerformClick();
+                            if (controller.Running || !controller.Window.Visible || controller.Window.WindowState != FormWindowState.Normal ||
+                                controller.Window.IsDisposed || controller.Settings.ViewingId != viewingId ||
+                                curtains.Any(c => !c.IsDisposed) || bars.Any(b => !b.IsDisposed))
+                                throw new Exception("Panel stop did not clear overlays and restore settings");
+                            controller.Start();
+                            if (!controller.Running || controller.Window.Visible) throw new Exception("Cannot restart viewing from restored settings");
+                            controller.ShowUi(null);
+                        }
                         if (scenario == "pending-update" && !controller.Updates.Busy) throw new Exception("Update was not pending");
                         if (scenario.EndsWith("-tray"))
                             ((ToolStripMenuItem)tray.ContextMenuStrip.Items[tray.ContextMenuStrip.Items.Count - 1]).PerformClick();

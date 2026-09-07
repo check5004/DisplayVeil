@@ -143,7 +143,7 @@ namespace DisplayVeil
             {
                 foreach (var display in targets)
                 {
-                    var veil = new VeilWindow(display, delegate { Stop(null); });
+                    var veil = new VeilWindow(display, delegate { ShowUi(null); });
                     veils.Add(veil);
                     veil.Curtain.HintRequested += delegate { veil.LastMovement = clock.ElapsedMilliseconds; };
                     veil.LastMovement = clock.ElapsedMilliseconds - 3000;

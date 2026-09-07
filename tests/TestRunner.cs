@@ -16,6 +16,7 @@ namespace DisplayVeil.Tests
         [STAThread]
         private static int Main(string[] args)
         {
+            if (args.Length == 2 && args[0] == "--shutdown-child") return ShutdownTests.RunChild(args[1]);
             if (args.Any(arg => arg != "--headless")) { Console.Error.WriteLine("Usage: DisplayVeil.Tests.exe [--headless]"); return 2; }
             headless = args.Contains("--headless");
             UpdateTests.RunAll(Run);
@@ -355,6 +356,7 @@ namespace DisplayVeil.Tests
                     controller.Window.Close();
                 }
             });
+            ShutdownTests.RunAll(RunDesktop);
             Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed, " + skipped + " skipped");
             return failed == 0 ? 0 : 1;
         }

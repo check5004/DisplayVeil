@@ -17,13 +17,14 @@ namespace DisplayVeil
         public const string ReleasesUrl = "https://github.com/check5004/DisplayVeil/releases";
         public string Tag { get; private set; }
         public Version Version { get; private set; }
+        public string Notes { get; private set; }
         public string PageUrl { get { return ReleasesUrl + "/tag/" + Tag; } }
-        public static UpdateRelease FromTag(string tag)
+        public static UpdateRelease FromTag(string tag, string notes = null)
         {
             Version version;
             if (tag == null || !Regex.IsMatch(tag, @"\Av(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\z") ||
                 !Version.TryParse(tag.Substring(1) + ".0", out version)) return null;
-            return new UpdateRelease { Tag = tag, Version = version };
+            return new UpdateRelease { Tag = tag, Version = version, Notes = notes };
         }
     }
 
@@ -38,6 +39,7 @@ namespace DisplayVeil
             [DataMember(Name = "tag_name")] public string Tag { get; set; }
             [DataMember(Name = "draft")] public bool Draft { get; set; }
             [DataMember(Name = "prerelease")] public bool Prerelease { get; set; }
+            [DataMember(Name = "body")] public string Body { get; set; }
             [DataMember(Name = "assets")] public AssetData[] Assets { get; set; }
         }
         [DataContract]
@@ -52,7 +54,7 @@ namespace DisplayVeil
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
             {
                 var data = (ReleaseData)new DataContractJsonSerializer(typeof(ReleaseData)).ReadObject(stream);
-                var release = data == null ? null : UpdateRelease.FromTag(data.Tag);
+                var release = data == null ? null : UpdateRelease.FromTag(data.Tag, data.Body ?? "");
                 if (release == null || data.Draft || data.Prerelease || data.Assets == null)
                     throw new InvalidDataException("正式版の情報を取得できませんでした。");
                 string expected = "DisplayVeil-" + release.Version.ToString(3) + "-win.zip";
@@ -98,6 +100,8 @@ namespace DisplayVeil
         public bool Busy { get; private set; }
         public string Message { get; private set; }
         public UpdateRelease Available { get; private set; }
+        public UpdateRelease Latest { get; private set; }
+        public Version CurrentVersion { get { return current; } }
         public UpdateMonitor(Settings settings, Version current, Func<CancellationToken, Task<UpdateRelease>> fetch, Action save)
         {
             this.settings = settings; this.current = current; this.fetch = fetch; this.save = save;
@@ -111,6 +115,7 @@ namespace DisplayVeil
         }
         private void SetRelease(UpdateRelease release)
         {
+            Latest = release;
             Available = release != null && release.Version > current ? release : null;
         }
         private void Notify() { if (!disposed && Changed != null) Changed(); }

@@ -26,6 +26,7 @@ namespace DisplayVeil.Tests
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
             }
+            UpdateFormTests.RunAll(RunDesktop);
             Run("A viewing display can be non-primary", delegate
             {
                 var displays = FourDisplays();

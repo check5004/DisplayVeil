@@ -13,7 +13,7 @@ namespace DisplayVeil.Tests
     {
         public static void RunAll(Action<string, Action> runDesktop)
         {
-            foreach (string scenario in new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop" })
+            foreach (string scenario in new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop", "update-dialog", "pending-update-dialog" })
             {
                 string current = scenario;
                 runDesktop("Closing exits the process: " + current, delegate
@@ -45,7 +45,7 @@ namespace DisplayVeil.Tests
 
         public static int RunChild(string scenario)
         {
-            if (!new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop" }.Contains(scenario)) return 2;
+            if (!new[] { "window", "minimized-tray", "viewing-tray", "pending-update", "curtain-stop", "bar-stop", "update-dialog", "pending-update-dialog" }.Contains(scenario)) return 2;
             string directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shutdown-settings", Guid.NewGuid().ToString("N"));
             try
             {
@@ -77,7 +77,9 @@ namespace DisplayVeil.Tests
                         // Also exercise auxiliary window cleanup with a single attached display.
                         controller.Identify();
                     }
-                    if (scenario == "pending-update")
+                    bool updateDialog = scenario.EndsWith("update-dialog");
+                    bool pendingUpdate = scenario.StartsWith("pending-update");
+                    if (pendingUpdate)
                     {
                         var pending = new TaskCompletionSource<UpdateRelease>();
                         var fetch = new Func<CancellationToken, Task<UpdateRelease>>(delegate(CancellationToken token)
@@ -88,6 +90,19 @@ namespace DisplayVeil.Tests
                         });
                         typeof(UpdateMonitor).GetField("fetch", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(controller.Updates, fetch);
                         controller.Window.BeginInvoke(new Action(async delegate { await controller.Updates.CheckAsync(true, DateTime.UtcNow); }));
+                    }
+                    if (updateDialog)
+                    {
+                        if (!pendingUpdate)
+                        {
+                            var fetch = new Func<CancellationToken, Task<UpdateRelease>>(delegate
+                            { return Task.FromResult(UpdateRelease.FromTag("v9.0.0", "変更内容")); });
+                            typeof(UpdateMonitor).GetField("fetch", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(controller.Updates, fetch);
+                        }
+                        controller.Window.BeginInvoke(new Action(delegate
+                        {
+                            ((Button)typeof(MainForm).GetField("openUpdates", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller.Window)).PerformClick();
+                        }));
                     }
                     timer.Tick += delegate
                     {
@@ -120,7 +135,26 @@ namespace DisplayVeil.Tests
                             if (!controller.Running || controller.Window.Visible) throw new Exception("Cannot restart viewing from restored settings");
                             controller.ShowUi(null);
                         }
-                        if (scenario == "pending-update" && !controller.Updates.Busy) throw new Exception("Update was not pending");
+                        if (pendingUpdate && !controller.Updates.Busy) throw new Exception("Update was not pending");
+                        if (updateDialog)
+                        {
+                            var dialog = Application.OpenForms.OfType<UpdateForm>().Single();
+                            if (!dialog.Modal || dialog.Owner != controller.Window)
+                                throw new Exception("Update details are not owned modal UI: modal=" + dialog.Modal + ", owner=" + (dialog.Owner == controller.Window));
+                            controller.Settings.ViewingId = controller.Displays[0].Id;
+                            controller.Start();
+                            if (controller.Running) throw new Exception("Viewing started over update details");
+                            if (!pendingUpdate)
+                            {
+                                dialog.Close();
+                                controller.Window.BeginInvoke(new Action(delegate
+                                {
+                                    if (controller.Window.UpdateDialogOpen || !controller.Window.Enabled) throw new Exception("Settings did not recover after closing details");
+                                    controller.Window.Close();
+                                }));
+                                return;
+                            }
+                        }
                         if (scenario.EndsWith("-tray"))
                             ((ToolStripMenuItem)tray.ContextMenuStrip.Items[tray.ContextMenuStrip.Items.Count - 1]).PerformClick();
                         else controller.Window.Close();
@@ -130,7 +164,7 @@ namespace DisplayVeil.Tests
                     if (!exited || !controller.Window.IsDisposed || controller.Running || tray.Visible || Application.OpenForms.Count != 0)
                         throw new Exception("Windows, tray or message loop survived shutdown");
                 }
-                if (scenario == "pending-update" && !updateToken.IsCancellationRequested)
+                if (scenario.StartsWith("pending-update") && !updateToken.IsCancellationRequested)
                     throw new Exception("Pending update was not cancelled");
                 Console.WriteLine("SHUTDOWN COMPLETE");
                 return 0;

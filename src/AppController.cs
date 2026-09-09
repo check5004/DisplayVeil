@@ -122,7 +122,7 @@ namespace DisplayVeil
         }
         public void Start()
         {
-            if (Running) return;
+            if (Running || Window.UpdateDialogOpen) return;
             if (!RefreshTopology(false)) return;
             var targets = DisplayLayout.Targets(Displays, Settings.ViewingId);
             if (targets.Count == 0)
@@ -181,7 +181,7 @@ namespace DisplayVeil
             // Recover settings after unplugging the screen that held the window.
             if (!Displays.Any(d => d.WorkArea.IntersectsWith(Window.Bounds)) && Displays.Count > 0)
                 Window.Location = Displays[0].WorkArea.Location;
-            Window.Activate();
+            Window.ActivateSettings();
         }
         public void Identify()
         {

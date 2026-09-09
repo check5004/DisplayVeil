@@ -22,6 +22,23 @@ namespace DisplayVeil.Tests
         }
         public static void RunAll(Action<string, Action> run)
         {
+            run("Release notes preserve Japanese, line breaks and empty or missing bodies", delegate
+            {
+                string json = Json.Replace("\"draft\":false", "\"body\":\"## 変更内容\\n- 日本語の修正\\n- **表示**を改善\",\"draft\":false");
+                Assert(UpdateClient.Parse(json).Notes == "## 変更内容\n- 日本語の修正\n- **表示**を改善");
+                Assert(UpdateClient.Parse(Json).Notes == "");
+                Assert(UpdateClient.Parse(Json.Replace("\"draft\":false", "\"body\":null,\"draft\":false")).Notes == "");
+                Assert(UpdateRelease.FromTag("v1.1.0").Notes == null);
+            });
+            run("Latest release notes remain available for current or newer installed versions", delegate
+            {
+                var release = UpdateRelease.FromTag("v1.1.0", "修正内容");
+                using (var monitor = new UpdateMonitor(new Settings(), new Version(1, 2, 0, 0), delegate { return Task.FromResult(release); }, delegate { }))
+                {
+                    Check(monitor, true);
+                    Assert(monitor.Available == null && monitor.Latest == release && monitor.CurrentVersion == new Version(1, 2, 0, 0));
+                }
+            });
             run("Update release uses numeric version and a fixed GitHub destination", delegate
             {
                 var release = UpdateClient.Parse(Json);

@@ -199,7 +199,11 @@ namespace DisplayVeil
             updates.Controls.Add(updateStatus, 0, 0);
             updates.Controls.Add(checkUpdates, 1, 0);
             updates.Controls.Add(releaseLink, 0, 1);
-            updates.SetColumnSpan(releaseLink, 2);
+            var currentVersion = Theme.Label("現在のバージョン " + UpdateClient.CurrentVersion.ToString(3), 9, Theme.Muted, FontStyle.Regular);
+            currentVersion.AutoSize = false;
+            currentVersion.Dock = DockStyle.Fill;
+            currentVersion.TextAlign = ContentAlignment.MiddleRight;
+            updates.Controls.Add(currentVersion, 1, 1);
             updates.Controls.Add(autoUpdates, 0, 2);
             updates.SetColumnSpan(autoUpdates, 2);
             root.Controls.Add(updates, 0, 6);
